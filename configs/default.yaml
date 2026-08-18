@@ -1,0 +1,67 @@
+data:
+  path: data/1_ready/df.parquet
+  gsdti_source: GSDTI
+  dcgat_source: DCGAT-DTI
+  smiles_column: smiles
+  sequence_column: sequence
+  target_column: real_value
+  source_column: source
+  label_column: label
+  probability_column: probability
+
+split:
+  # Options: stratified_random, drug_cold, target_cold
+  strategy: drug_cold
+  validation_fraction: 0.10
+  test_fraction: 0.10
+  seed: 42
+
+smiles_encoder:
+  model_name: DeepChem/ChemBERTa-77M-MLM
+  max_length: 256
+  batch_size: 64
+  pooling: mean
+  dtype: float32
+  trust_remote_code: false
+
+protein_encoder:
+  # This 8M model is a practical default. On a larger GPU, esm2_t30_150M_UR50D
+  # is a sensible higher-capacity replacement.
+  model_name: facebook/esm2_t6_8M_UR50D
+  max_length: 1024
+  batch_size: 8
+  pooling: mean
+  dtype: float32
+  trust_remote_code: false
+
+model:
+  projection_dim: 256
+  base_projection_dim: 64
+  hidden_dims: [512, 256, 64]
+  dropout: 0.25
+
+training:
+  epochs: 50
+  batch_size: 512
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  warmup_fraction: 0.05
+  gradient_accumulation_steps: 1
+  gradient_clip_norm: 1.0
+  num_workers: 0
+  pin_memory: true
+  mixed_precision: true
+  patience: 7
+  min_delta: 0.0001
+  monitor: auprc
+  monitor_mode: max
+  class_weight: balanced
+  threshold_metric: f1
+  seed: 42
+  deterministic: false
+
+runtime:
+  output_dir: artifacts/ensemble
+  cache_dir: artifacts/embedding_cache
+  device: auto
+  log_level: INFO

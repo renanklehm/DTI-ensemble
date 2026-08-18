@@ -1,0 +1,29 @@
+# Higher-capacity starting point for a >=24 GB CUDA GPU. Adjust batch sizes to
+# measured VRAM; embedding caches make retries inexpensive.
+smiles_encoder:
+  model_name: DeepChem/ChemBERTa-77M-MLM
+  max_length: 512
+  batch_size: 128
+  pooling: mean
+  dtype: float16
+
+protein_encoder:
+  model_name: facebook/esm2_t30_150M_UR50D
+  max_length: 1024
+  batch_size: 16
+  pooling: mean
+  dtype: float16
+
+model:
+  projection_dim: 384
+  base_projection_dim: 96
+  hidden_dims: [768, 384, 128]
+  dropout: 0.25
+
+training:
+  batch_size: 1024
+  mixed_precision: true
+  gradient_accumulation_steps: 1
+
+runtime:
+  device: cuda
