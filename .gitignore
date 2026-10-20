@@ -12,5 +12,3 @@ artifacts/
 # Virtual environments
 .venv
 /data/*
-
-notebooks/*
